@@ -346,6 +346,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:cal
       case 'approve':           approveToMaintenance(key); break;
       case 'retransfer-maint':  retransferToMaintenance(key); break;
       case 'inprogress':        updateStatus(key, 'inprogress'); break;
+      case 'inprogress-machine': updateStatusMachine(key); break;
       case 'resolve-form':      toggleResolveForm(key); break;
       case 'resolve-submit':    submitResolve(key); break;
       case 'ack':               ack(key); break;
@@ -371,6 +372,13 @@ header{display:flex;align-items:center;justify-content:space-between;padding:cal
     update(ref(db, 'alerts/' + fbKey), { status: 'open', isMachine: true, statusTime: ts, retransferredAt: ts });
   }
 
+  function updateStatusMachine(fbKey) {
+    if (!fbKey) return;
+    var now = new Date();
+    var ts = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+    update(ref(db, 'alerts/' + fbKey), { status: 'inprogress', isMachine: true, statusTime: ts });
+  }
+
   function card(a, opts) {
     opts = opts || {};
     var k  = a.fbKey;
@@ -393,8 +401,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:cal
       var btns = '';
       if (a.status === 'pending_maintenance') {
         btns += mkbtn('send-maint', 'approve',      k, '&#9881; Envoyer a maintenance');
-        btns += mkbtn('rs',         'inprogress',   k, 'Prendre en charge');
-        btns += mkbtn('ack',        'ack',          k, 'Rejeter');
+        btns += mkbtn('rs',         'inprogress-machine', k, 'Prendre en charge');
+        btns += mkbtn('ack',        'ack',               k, 'Rejeter');
       } else if (a.status === 'open' && a.isMachine) {
         btns += mkbtn('ip',  'inprogress',   k, 'Prendre en charge');
         btns += mkbtn('rs',  'resolve-form', k, 'Resoudre');
@@ -405,7 +413,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:cal
         btns += mkbtn('ack', 'ack',          k, 'Retirer');
       } else if (a.status === 'inprogress') {
         btns += mkbtn('rs',  'resolve-form',     k, 'Resoudre');
-        if (a.isMachine) btns += mkbtn('send-maint', 'retransfer-maint', k, '&#9881; Retransferer maintenance');
+        if (a.isMachine || a.category === 'machine') btns += mkbtn('send-maint', 'retransfer-maint', k, '&#9881; Retransferer maintenance');
         btns += mkbtn('ack', 'ack', k, 'Retirer');
       } else {
         btns += mkbtn('ack', 'ack', k, 'Archiver');
