@@ -413,7 +413,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:cal
         btns += mkbtn('ack', 'ack',          k, 'Retirer');
       } else if (a.status === 'inprogress') {
         btns += mkbtn('rs',  'resolve-form',     k, 'Resoudre');
-        if (a.isMachine || a.category === 'machine') btns += mkbtn('send-maint', 'retransfer-maint', k, '&#9881; Retransferer maintenance');
+        if (a.isMachine || a.category === 'machine' || (a.type && a.type.indexOf('Panne') >= 0)) btns += mkbtn('send-maint', 'retransfer-maint', k, '&#9881; Retransferer maintenance');
         btns += mkbtn('ack', 'ack', k, 'Retirer');
       } else {
         btns += mkbtn('ack', 'ack', k, 'Archiver');
