@@ -1,21 +1,22 @@
 {
   "name": "ANDON — Superviseur",
-  "short_name": "ANDON",
-  "description": "Système de signalement ANDON — Interface superviseur",
-  "start_url": "/superviseur.html",
+  "short_name": "ANDON SUP",
+  "description": "Systeme de signalement ANDON — Superviseur",
+  "start_url": "/andon-jit/superviseur.html",
+  "scope": "/andon-jit/",
   "display": "standalone",
   "background_color": "#080b12",
   "theme_color": "#080b12",
   "orientation": "any",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/andon-jit/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "/andon-jit/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
