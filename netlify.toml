@@ -1,0 +1,16 @@
+# Pas de commande de build — fichiers HTML statiques servis directement
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+
+# Service worker doit être servi depuis la racine
+[[headers]]
+  for = "/firebase-messaging-sw.js"
+  [headers.values]
+    Service-Worker-Allowed = "/"
+    Content-Type = "application/javascript"

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080b12">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>ANDON</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--red:#E24B4A;--bg:#0f1117;--surf:#1a1d26;--bdr:rgba(255,255,255,0.09);--txt:#f0f2f8;--muted:#8a90a8;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{min-height:100%;background:var(--bg);font-family:'Barlow',sans-serif;color:var(--txt);display:flex;align-items:center;justify-content:center;padding:20px;}
+  .wrap{text-align:center;width:100%;max-width:400px;}
+  .logo{font-family:'Barlow Condensed',sans-serif;font-size:46px;font-weight:800;letter-spacing:8px;margin-bottom:4px;}
+  .logo span{color:var(--red);}
+  .sub{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:32px;}
+  .cards{display:flex;flex-direction:column;gap:9px;}
+  .card{display:flex;align-items:center;gap:14px;text-decoration:none;background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:16px 20px;transition:transform 0.12s,border-color 0.12s;}
+  .card:active{transform:scale(0.98);}
+  .ci{font-size:24px;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .ct{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:1px;}
+  .cs{font-size:11px;color:var(--muted);}
+  .arr{margin-left:auto;font-size:18px;color:var(--muted);}
+  .card.op  .ci{background:rgba(226,75,74,0.12);} .card.op  .ct{color:#F09595;} .card.op:active{border-color:rgba(226,75,74,0.4);}
+  .card.sup .ci{background:rgba(55,138,221,0.12);} .card.sup .ct{color:#85B7EB;} .card.sup:active{border-color:rgba(55,138,221,0.35);}
+  .card.chef .ci{background:rgba(239,159,39,0.12);} .card.chef .ct{color:#FAC775;} .card.chef:active{border-color:rgba(239,159,39,0.4);}
+  .card.maint .ci{background:rgba(255,122,48,0.12);} .card.maint .ct{color:#FF9A6C;} .card.maint:active{border-color:rgba(255,122,48,0.4);}
+  .card.car .ci{background:rgba(29,158,117,0.12);} .card.car .ct{color:#5DCAA5;} .card.car:active{border-color:rgba(29,158,117,0.35);}
+  .sep{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 4px 2px;}
+  .admin-link{font-size:11px;color:var(--muted);text-align:center;margin-top:14px;text-decoration:none;letter-spacing:1px;}
+  .admin-link:hover{color:var(--txt);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">AN<span>D</span>ON</div>
+  <div class="sub">Choisissez votre interface</div>
+  <div class="cards">
+    <div class="sep">Production</div>
+    <a href="operateur.html" class="card op">
+      <div class="ci">&#128406;</div>
+      <div><div class="ct">Operateur</div><div class="cs">Envoyer une alerte</div></div>
+      <div class="arr">&#8250;</div>
+    </a>
+    <div class="sep">Gestion</div>
+    <a href="superviseur.html" class="card sup">
+      <div class="ci">&#128203;</div>
+      <div><div class="ct">Superviseur</div><div class="cs">Toutes les alertes + approbations</div></div>
+      <div class="arr">&#8250;</div>
+    </a>
+    <a href="chef-equipe.html" class="card chef">
+      <div class="ci">&#128084;</div>
+      <div><div class="ct">Chef d equipe</div><div class="cs">Toutes les alertes + approbations</div></div>
+      <div class="arr">&#8250;</div>
+    </a>
+    <div class="sep">Specialise</div>
+    <a href="maintenance.html" class="card maint">
+      <div class="ci">&#9881;</div>
+      <div><div class="ct">Maintenance</div><div class="cs">Pannes approuvees uniquement</div></div>
+      <div class="arr">&#8250;</div>
+    </a>
+    <a href="cariste.html" class="card car">
+      <div class="ci">&#128664;</div>
+      <div><div class="ct">Cariste</div><div class="cs">Palettes + Materiel — FIFO</div></div>
+      <div class="arr">&#8250;</div>
+    </a>
+  </div>
+  <a href="admin.html" class="admin-link">&#9881; Administration</a>
+</div>
+</body>
+</html>

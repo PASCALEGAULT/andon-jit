@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ANDON">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>ANDON — Operateur</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#E24B4A;--amber:#EF9F27;--blue:#378ADD;--teal:#1D9E75;--purple:#7F77DD;
+  --bg:#0f1117;--surf:#1a1d26;--surf2:#22263a;
+  --bdr:rgba(255,255,255,0.08);--bdr2:rgba(255,255,255,0.14);
+  --txt:#f0f2f8;--muted:#8a90a8;
+  --fd:'Barlow Condensed',sans-serif;--fb:'Barlow',sans-serif;
+  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);font-family:var(--fb);color:var(--txt);display:flex;flex-direction:column;}
+header{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--sat)+10px) 16px 10px;border-bottom:1px solid var(--bdr);background:var(--surf);flex-shrink:0;}
+.logo{font-family:var(--fd);font-size:22px;font-weight:800;letter-spacing:3px;}
+.logo span{color:var(--red);}
+.badge{font-family:var(--fd);font-size:11px;font-weight:600;letter-spacing:2px;background:var(--surf2);border:1px solid var(--bdr);color:var(--muted);padding:3px 10px;border-radius:4px;text-transform:uppercase;}
+.clock{font-family:var(--fd);font-size:18px;font-weight:600;letter-spacing:2px;color:var(--muted);}
+.main{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch;}
+.slabel{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+/* Zone selector */
+.zone-section{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;}
+.zone-active-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.zone-active-label{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--teal);flex:1;}
+.zone-change-btn{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:none;border:1px solid var(--bdr2);color:var(--muted);padding:4px 10px;border-radius:5px;cursor:pointer;}
+.zone-picker{display:none;flex-direction:column;gap:8px;}
+.zone-picker.open{display:flex;}
+.zone-group-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.zone-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.zchip{padding:7px 12px;border-radius:6px;border:1px solid var(--bdr);background:var(--surf2);cursor:pointer;font-family:var(--fd);font-size:13px;font-weight:700;color:var(--muted);transition:all 0.12s;}
+.zchip:active{transform:scale(0.95);}
+.zchip.active{border-color:var(--teal);color:#5DCAA5;background:rgba(29,158,117,0.12);}
+/* Type buttons */
+.btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.signal-btn{border:1px solid var(--bdr);border-radius:10px;padding:14px;background:var(--surf);cursor:pointer;text-align:left;transition:transform 0.12s,border-color 0.12s,background 0.12s;position:relative;overflow:hidden;}
+.signal-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:10px 0 0 10px;}
+.signal-btn:active{transform:scale(0.96);}
+.signal-btn.selected{background:var(--surf2);}
+.signal-btn.type-red::before{background:var(--red);}
+.signal-btn.type-red.selected{border-color:var(--red);}
+.signal-btn.type-amber::before{background:var(--amber);}
+.signal-btn.type-amber.selected{border-color:var(--amber);}
+.signal-btn.type-blue::before{background:var(--blue);}
+.signal-btn.type-blue.selected{border-color:var(--blue);}
+.signal-btn.type-teal::before{background:var(--teal);}
+.signal-btn.type-teal.selected{border-color:var(--teal);}
+.signal-btn.type-purple::before{background:var(--purple);}
+.signal-btn.type-purple.selected{border-color:var(--purple);}
+.btn-icon{font-size:22px;margin-bottom:7px;display:block;}
+.btn-title{font-family:var(--fd);font-size:16px;font-weight:700;letter-spacing:0.5px;display:block;margin-bottom:2px;}
+.btn-sub{font-size:11px;color:var(--muted);display:block;}
+.type-red .btn-title{color:#F09595;}
+.type-amber .btn-title{color:#FAC775;}
+.type-blue .btn-title{color:#85B7EB;}
+.type-teal .btn-title{color:#5DCAA5;}
+.type-purple .btn-title{color:#AFA9EC;}
+.panne-badge{display:inline-block;font-size:9px;font-family:var(--fd);font-weight:700;letter-spacing:1px;background:rgba(226,75,74,0.2);color:#F09595;border:1px solid rgba(226,75,74,0.35);border-radius:3px;padding:1px 5px;margin-top:4px;}
+/* Form */
+.form-panel{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:14px;display:none;animation:fadeUp 0.2s ease;}
+.form-panel.visible{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.type-banner{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;margin-bottom:12px;background:var(--surf2);border-left:3px solid var(--red);}
+.t-name{font-family:var(--fd);font-size:15px;font-weight:700;}
+.t-dest{font-size:11px;color:var(--muted);margin-left:auto;}
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.prio-row{display:flex;gap:6px;}
+.prio-btn{flex:1;padding:8px 4px;border-radius:6px;border:1px solid var(--bdr);background:var(--surf2);cursor:pointer;font-family:var(--fd);font-size:11px;font-weight:700;text-align:center;transition:all 0.12s;color:var(--muted);}
+.prio-btn.active-p1{border-color:var(--red);background:rgba(226,75,74,0.15);color:#F09595;}
+.prio-btn.active-p2{border-color:var(--amber);background:rgba(239,159,39,0.15);color:#FAC775;}
+.prio-btn.active-p3{border-color:var(--blue);background:rgba(55,138,221,0.15);color:#85B7EB;}
+select{width:100%;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-family:var(--fb);font-size:14px;padding:10px 12px;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;}
+select option{background:var(--surf2);}
+textarea{width:100%;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-family:var(--fb);font-size:14px;padding:10px 12px;resize:none;height:64px;outline:none;}
+textarea::placeholder,select::placeholder{color:var(--muted);}
+.send-btn{width:100%;padding:14px;border-radius:8px;border:none;cursor:pointer;font-family:var(--fd);font-size:17px;font-weight:800;letter-spacing:2px;text-transform:uppercase;background:var(--red);color:#fff;transition:opacity 0.15s,transform 0.1s;}
+.send-btn:active{transform:scale(0.98);}
+.send-btn:disabled{opacity:0.3;cursor:not-allowed;}
+/* Toast */
+.toast{display:none;align-items:center;gap:12px;padding:12px 16px;background:rgba(29,158,117,0.15);border:1px solid var(--teal);border-radius:10px;}
+.toast.show{display:flex;}
+.toast-msg{font-family:var(--fd);font-size:14px;font-weight:600;color:#5DCAA5;}
+/* History */
+.history-list{display:flex;flex-direction:column;gap:7px;}
+.hist-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surf);border:1px solid var(--bdr);border-radius:8px;font-size:12px;color:var(--muted);}
+.hist-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.hist-dot.p1{background:var(--red);}.hist-dot.p2{background:var(--amber);}.hist-dot.p3{background:var(--blue);}
+.hist-type{font-weight:600;color:var(--txt);flex:1;font-size:12px;}
+.hist-status{font-size:9px;font-family:var(--fd);font-weight:700;letter-spacing:1px;padding:2px 6px;border-radius:3px;}
+.hist-status.open{background:rgba(226,75,74,0.2);color:#F09595;}
+.hist-status.pending_maintenance{background:rgba(127,119,221,0.2);color:#AFA9EC;}
+.hist-status.inprogress{background:rgba(239,159,39,0.2);color:#FAC775;}
+.hist-status.resolved{background:rgba(29,158,117,0.2);color:#5DCAA5;}
+.no-history{text-align:center;padding:16px;color:var(--muted);font-size:12px;}
+</style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="logo">AN<span>D</span>ON</div>
+    <div class="badge">Operateur</div>
+  </div>
+  <div class="clock" id="clock">--:--:--</div>
+</header>
+<div class="main">
+  <!-- Zone -->
+  <div class="zone-section">
+    <div class="slabel">Zone / Poste</div>
+    <div class="zone-active-bar">
+      <div class="zone-active-label" id="zone-display">Aucune zone selectionnee</div>
+      <button class="zone-change-btn" onclick="toggleZonePicker()">Changer</button>
+    </div>
+    <div class="zone-picker open" id="zone-picker">
+      <div class="zone-group-label">Laser</div>
+      <div class="zone-chips" id="chips-laser"></div>
+      <div class="zone-group-label" style="margin-top:6px;">Presse</div>
+      <div class="zone-chips" id="chips-presse"></div>
+      <div class="zone-group-label" style="margin-top:6px;">Autre</div>
+      <div class="zone-chips" id="chips-autre"></div>
+    </div>
+  </div>
+  <!-- Type buttons -->
+  <div>
+    <div class="slabel">Type de requete</div>
+    <div class="btn-grid">
+      <button class="signal-btn type-red" onclick="selectType('Panne / Arret machine','&#9881;','p1','type-red','machine')">
+        <span class="btn-icon">&#9881;</span>
+        <span class="btn-title">Panne machine</span>
+        <span class="btn-sub">Arret non planifie</span>
+        <span class="panne-badge">APPROBATION SUP.</span>
+      </button>
+      <button class="signal-btn type-amber" onclick="selectType('Manque de materiel','&#128230;','p2','type-amber','material')">
+        <span class="btn-icon">&#128230;</span>
+        <span class="btn-title">Manque materiel</span>
+        <span class="btn-sub">Reappro necessaire</span>
+      </button>
+      <button class="signal-btn type-blue" onclick="selectType('Aide technique','&#128296;','p2','type-blue','tech')">
+        <span class="btn-icon">&#128296;</span>
+        <span class="btn-title">Aide technique</span>
+        <span class="btn-sub">Intervention requise</span>
+      </button>
+      <button class="signal-btn type-teal" onclick="selectType('Qualite / Defaut','&#128269;','p3','type-teal','quality')">
+        <span class="btn-icon">&#128269;</span>
+        <span class="btn-title">Qualite / Defaut</span>
+        <span class="btn-sub">Defaut detecte</span>
+      </button>
+      <button class="signal-btn type-purple" onclick="selectType('Commande de palette','&#128230;','p2','type-purple','palette')">
+        <span class="btn-icon">&#128230;</span>
+        <span class="btn-title">Cmd palette</span>
+        <span class="btn-sub">Demande cariste</span>
+      </button>
+    </div>
+  </div>
+  <!-- Toast -->
+  <div id="toast-ok" class="toast">
+    <span style="font-size:20px;">&#10003;</span>
+    <div>
+      <div class="toast-msg" id="toast-msg">Signal envoye</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px;" id="toast-detail"></div>
+    </div>
+  </div>
+  <!-- Form -->
+  <div id="form-panel" class="form-panel">
+    <div class="type-banner" id="type-banner">
+      <span style="font-size:18px;" id="banner-icon"></span>
+      <span class="t-name" id="banner-name"></span>
+      <span class="t-dest" id="banner-dest"></span>
+    </div>
+    <div class="field">
+      <label>Priorite</label>
+      <div class="prio-row">
+        <button class="prio-btn" id="prio-p1" onclick="setPrio('p1')">P1 CRITIQUE</button>
+        <button class="prio-btn" id="prio-p2" onclick="setPrio('p2')">P2 ELEVEE</button>
+        <button class="prio-btn" id="prio-p3" onclick="setPrio('p3')">P3 NORMALE</button>
+      </div>
+    </div>
+    <!-- Palette size selector (shown only for palette type) -->
+    <div class="field" id="palette-field" style="display:none;">
+      <label>Grandeur de palette</label>
+      <select id="palette-size">
+        <option value="">-- Selectionnez une grandeur --</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="note" placeholder="Details supplementaires..."></textarea>
+    </div>
+    <button class="send-btn" id="send-btn" onclick="sendAlert()" disabled>ENVOYER LE SIGNAL</button>
+  </div>
+  <!-- History -->
+  <div>
+    <div class="slabel" style="margin-bottom:8px;">Historique de session</div>
+    <div class="history-list" id="history-list">
+      <div class="no-history">Aucun signal envoye cette session.</div>
+    </div>
+  </div>
+</div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, push, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyB24gRhCvIBE3HY-teVwr-GTtKA6Pk13A8",
+    authDomain:        "andonjit.firebaseapp.com",
+    databaseURL:       "https://andonjit-default-rtdb.firebaseio.com",
+    projectId:         "andonjit",
+    storageBucket:     "andonjit.firebasestorage.app",
+    messagingSenderId: "861389965341",
+    appId:             "1:861389965341:web:48de1a98ee556b2cdc5ef4"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  const alertsRef = ref(db, 'alerts');
+
+  var state = { type:'', icon:'', prio:'', colorClass:'', category:'' };
+  var selectedZone = localStorage.getItem('andon_zone') || '';
+  var sessionHistory = [];
+
+  // ── Load palette sizes from Firebase (live) ──────────────────────────────
+  var configRef2 = ref(db, 'config');
+  onValue(configRef2, function(snap) {
+    var data = snap.val();
+    var pals = (data && data.palettes) ? data.palettes : [];
+    // Fallback: load from config.json if Firebase empty
+    if (pals.length === 0) {
+      fetch('config.json').then(function(r){ return r.json(); }).then(function(cfg){
+        populatePalettes(cfg.palettes || []);
+      }).catch(function(){});
+    } else {
+      populatePalettes(pals);
+    }
+  });
+
+  function populatePalettes(pals) {
+    var sel = document.getElementById('palette-size');
+    var current = sel.value;
+    sel.innerHTML = '<option value="">-- Selectionnez une grandeur --</option>';
+    pals.forEach(function(p) {
+      var opt = document.createElement('option');
+      opt.value = p; opt.textContent = p;
+      if (p === current) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  // ── Zones ─────────────────────────────────────────────────────────────────
+  var zones = {
+    laser:  ['Laser 1','Laser 2','Laser 3','Laser 4','Laser 5','Laser 6','Laser 7'],
+    presse: ['Presse 1','Presse 2','Presse 3','Presse 4','Presse 5','Presse 6','Presse 7','Presse 8','Presse 9','Presse 10'],
+    autre:  ['Expedition']
+  };
+  Object.keys(zones).forEach(function(g) {
+    var c = document.getElementById('chips-'+g);
+    zones[g].forEach(function(z) {
+      var b = document.createElement('button');
+      b.className = 'zchip' + (z === selectedZone ? ' active' : '');
+      b.textContent = z;
+      b.onclick = function() { selectZone(z); };
+      c.appendChild(b);
+    });
+  });
+  updateZoneDisplay();
+
+  // ── Clock ─────────────────────────────────────────────────────────────────
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function tick(){
+    var n = new Date();
+    document.getElementById('clock').textContent = pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
+  }
+  tick(); setInterval(tick, 1000);
+
+  // ── Zone ─────────────────────────────────────────────────────────────────
+  function selectZone(zone) {
+    selectedZone = zone;
+    localStorage.setItem('andon_zone', zone);
+    document.querySelectorAll('.zchip').forEach(function(b){ b.classList.toggle('active', b.textContent === zone); });
+    updateZoneDisplay();
+    document.getElementById('zone-picker').classList.remove('open');
+    updateSendBtn();
+  }
+  function updateZoneDisplay() {
+    var el = document.getElementById('zone-display');
+    el.innerHTML = selectedZone
+      ? selectedZone + ' <span style="color:var(--teal);font-size:11px;">&#10003;</span>'
+      : 'Aucune zone selectionnee <span style="color:var(--muted);">&#8595; choisir</span>';
+  }
+  window.toggleZonePicker = function() {
+    document.getElementById('zone-picker').classList.toggle('open');
+  };
+
+  // ── Type selection ────────────────────────────────────────────────────────
+  window.selectType = function(type, icon, defaultPrio, colorClass, category) {
+    state.type = type; state.icon = icon; state.colorClass = colorClass; state.category = category;
+    document.querySelectorAll('.signal-btn').forEach(function(b){ b.classList.remove('selected'); });
+    event.currentTarget.classList.add('selected');
+    document.getElementById('banner-icon').innerHTML = icon;
+    document.getElementById('banner-name').textContent = type;
+    // Destination label
+    var dest = category === 'machine' ? '&#8594; Superviseur (approbation requise)'
+             : category === 'palette' ? '&#8594; Superviseur + Cariste'
+             : '&#8594; Superviseur';
+    document.getElementById('banner-dest').innerHTML = dest;
+    var colors = {'type-red':'var(--red)','type-amber':'var(--amber)','type-blue':'var(--blue)','type-teal':'var(--teal)','type-purple':'var(--purple)'};
+    document.getElementById('type-banner').style.borderLeftColor = colors[colorClass] || 'var(--red)';
+    // Show/hide palette field
+    document.getElementById('palette-field').style.display = category === 'palette' ? 'block' : 'none';
+    document.getElementById('form-panel').classList.add('visible');
+    document.getElementById('toast-ok').classList.remove('show');
+    setPrio(defaultPrio);
+    updateSendBtn();
+  };
+
+  window.setPrio = function(p) {
+    state.prio = p;
+    ['p1','p2','p3'].forEach(function(x){ document.getElementById('prio-'+x).className = 'prio-btn'; });
+    document.getElementById('prio-'+p).classList.add('active-'+p);
+    updateSendBtn();
+  };
+
+  function updateSendBtn() {
+    var palOk = state.category !== 'palette' || document.getElementById('palette-size').value !== '';
+    document.getElementById('send-btn').disabled = !(state.type && state.prio && selectedZone && palOk);
+  }
+
+  // Palette dropdown triggers send btn check
+  document.getElementById('palette-size').addEventListener('change', updateSendBtn);
+
+  // ── Send alert ────────────────────────────────────────────────────────────
+  window.sendAlert = function() {
+    if (!state.type || !state.prio || !selectedZone) return;
+    var now = new Date();
+    var ts = pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+    var paletteSize = state.category === 'palette' ? document.getElementById('palette-size').value : '';
+
+    // Machine breakdowns start as 'pending_maintenance' — require supervisor approval
+    var initialStatus = state.category === 'machine' ? 'pending_maintenance' : 'open';
+
+    var alertData = {
+      id: Date.now(),
+      type: state.type,
+      icon: state.icon,
+      prio: state.prio,
+      poste: selectedZone,
+      note: document.getElementById('note').value.trim(),
+      paletteSize: paletteSize,
+      category: state.category,
+      time: ts,
+      status: initialStatus,
+      statusTime: ts,
+      resolveNote: '',
+      priority: 0  // for FIFO ordering (cariste view)
+    };
+
+    var newRef = push(alertsRef, alertData);
+    update(newRef, { fbKey: newRef.key });
+
+    sessionHistory.unshift(alertData);
+    renderHistory();
+
+    var destMsg = state.category === 'machine' ? 'En attente approbation superviseur'
+                : state.category === 'palette' ? 'Envoye — Superviseur + Cariste'
+                : 'Envoye au superviseur';
+    document.getElementById('toast-msg').textContent = destMsg;
+    document.getElementById('toast-detail').textContent = selectedZone + ' — ' + (state.prio==='p1'?'Critique':state.prio==='p2'?'Elevee':'Normale') + ' — ' + ts;
+    document.getElementById('toast-ok').classList.add('show');
+    document.getElementById('form-panel').classList.remove('visible');
+    document.querySelectorAll('.signal-btn').forEach(function(b){ b.classList.remove('selected'); });
+    document.getElementById('note').value = '';
+    document.getElementById('palette-size').value = '';
+    state = { type:'', icon:'', prio:'', colorClass:'', category:'' };
+    updateSendBtn();
+  };
+
+  // ── Listen for updates on session history ─────────────────────────────────
+  onValue(alertsRef, function(snap) {
+    var data = snap.val() || {};
+    sessionHistory.forEach(function(h) {
+      var found = Object.values(data).find(function(a){ return a.id === h.id; });
+      if (found) { h.status = found.status; }
+    });
+    renderHistory();
+  });
+
+  function renderHistory() {
+    var el = document.getElementById('history-list');
+    if (sessionHistory.length === 0) { el.innerHTML = '<div class="no-history">Aucun signal envoye cette session.</div>'; return; }
+    el.innerHTML = sessionHistory.slice(0,8).map(function(a){
+      var sl = a.status==='resolved'?'RESOLU'
+             : a.status==='inprogress'?'EN COURS'
+             : a.status==='pending_maintenance'?'EN ATTENTE SUP.'
+             : 'OUVERT';
+      return '<div class="hist-item"><div class="hist-dot '+a.prio+'"></div>'
+           + '<span class="hist-type">'+esc(a.type)+'</span>'
+           + '<span style="color:var(--muted);font-size:11px;margin-right:4px;">'+esc(a.poste)+'</span>'
+           + '<span class="hist-status '+a.status+'">'+sl+'</span>'
+           + '<span style="font-size:10px;margin-left:4px;">'+a.time+'</span></div>';
+    }).join('');
+  }
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
